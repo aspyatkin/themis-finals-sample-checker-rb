@@ -1,20 +1,18 @@
-require 'femida_checker'
+require 'themis/checker'
 
 
-class SampleChecker < FemidaChecker::Base
-    protected
-    def _push(endpoint, flag_id, flag)
+class SampleChecker < Themis::Checker::Server
+    def push(endpoint, flag_id, flag)
         sleep Random.new.rand 1..5
-	return FemidaChecker::Result::OK, ''
+	   return Themis::Checker::Result::UP, flag_id
     end
 
-    def _pull(endpoint, flag_id, flag)
+    def pull(endpoint, flag_id, flag)
         sleep Random.new.rand 1..5
-        FemidaChecker::Result::OK
+        Themis::Checker::Result::UP
     end
 end
 
 
 checker = SampleChecker.new
 checker.run
-

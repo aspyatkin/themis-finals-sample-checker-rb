@@ -1,21 +1,19 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    beaneater (0.3.3)
-    femida_checker (0.0.9)
-      beaneater (~> 0.3, >= 0.3.2)
-      json (~> 1.8)
-      ruby-enum (~> 0.4)
+    beaneater (1.0.0)
     i18n (0.7.0)
-    json (1.8.3)
     ruby-enum (0.4.0)
       i18n
+    themis-checker (0.0.1)
+      beaneater
+      ruby-enum
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  femida_checker
+  themis-checker
 
 BUNDLED WITH
    1.10.4
