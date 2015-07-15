@@ -3,17 +3,22 @@ GEM
   specs:
     beaneater (1.0.0)
     i18n (0.7.0)
+    json (1.8.3)
     ruby-enum (0.4.0)
       i18n
-    themis-checker (0.0.1)
-      beaneater
+    themis-checker-result (1.0.0)
       ruby-enum
+    themis-checker-server (1.0.0)
+      beaneater
+      json
+      themis-checker-result
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  themis-checker
+  themis-checker-result
+  themis-checker-server
 
 BUNDLED WITH
    1.10.4

@@ -1,4 +1,5 @@
-require 'themis/checker'
+require 'themis/checker/result'
+require 'themis/checker/server'
 
 
 class SampleChecker < Themis::Checker::Server
