@@ -3,12 +3,12 @@ require 'themis/checker/server'
 
 
 class SampleChecker < Themis::Checker::Server
-    def push(endpoint, flag_id, flag)
+    def push(endpoint, flag, adjunct, metadata)
         sleep Random.new.rand 1..5
-	   return Themis::Checker::Result::UP, flag_id
+	   return Themis::Checker::Result::UP, adjunct
     end
 
-    def pull(endpoint, flag_id, flag)
+    def pull(endpoint, flag, adjunct, metadata)
         sleep Random.new.rand 1..5
         Themis::Checker::Result::UP
     end
