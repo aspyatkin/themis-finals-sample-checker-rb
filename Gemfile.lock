@@ -8,16 +8,22 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     beaneater (1.0.0)
+    faraday (0.9.2)
+      multipart-post (>= 1.2, < 3)
     i18n (0.7.0)
     json (1.8.3)
     minitest (5.8.3)
+    multipart-post (2.0.0)
     ruby-enum (0.5.0)
       i18n
+    sentry-raven (1.0.0)
+      faraday (>= 0.7.6)
     themis-checker-result (1.1.0)
       ruby-enum (~> 0.5.0)
-    themis-checker-server (2.0.0)
+    themis-checker-server (3.0.0)
       beaneater
       json
+      sentry-raven (~> 1.0.0)
       themis-checker-result (~> 1.1.0)
       time_difference (~> 0.4.2)
     thread_safe (0.3.5)
@@ -31,7 +37,7 @@ PLATFORMS
 
 DEPENDENCIES
   themis-checker-result (~> 1.1.0)
-  themis-checker-server (~> 2.0.0)
+  themis-checker-server (~> 3.0.0)
 
 BUNDLED WITH
    1.11.2
