@@ -1,0 +1,2 @@
+require './checker'
+run Application

@@ -1,19 +1,53 @@
-require 'themis/checker/result'
-require 'themis/checker/server'
+require 'sinatra/base'
+require 'json'
+require 'base64'
+require './tasks'
 
+class Application < ::Sinatra::Base
+  configure :production, :development do
+    enable :logging
+  end
 
-class SampleChecker < Themis::Checker::Server
-    def push(endpoint, flag, adjunct, metadata)
-        sleep Random.new.rand 1..5
-	   return Themis::Checker::Result::UP, adjunct
+  disable :run
+
+  post '/push' do
+    unless request.content_type == 'application/json'
+      halt 400
     end
 
-    def pull(endpoint, flag, adjunct, metadata)
-        sleep Random.new.rand 1..5
-        Themis::Checker::Result::UP
+    payload = nil
+
+    begin
+      request.body.rewind
+      payload = ::JSON.parse request.body.read
+    rescue => e
+      puts e.to_s
+      halt 400
     end
+
+    Push.perform_async payload
+
+    status 201
+    body ''
+  end
+
+  post '/pull' do
+    unless request.content_type == 'application/json'
+      halt 400
+    end
+
+    payload = nil
+
+    begin
+      request.body.rewind
+      payload = ::JSON.parse request.body.read
+    rescue => e
+      halt 400
+    end
+
+    Pull.perform_async payload
+
+    status 201
+    body ''
+  end
 end
-
-
-checker = SampleChecker.new
-checker.run
