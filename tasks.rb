@@ -31,9 +31,10 @@ class Push
   end
 
   def internal_push(endpoint, flag, adjunct, metadata)
-    result, updated_adjunct = ::Themis::Finals::Checker::Result::INTERNAL_ERROR, adjunct
+    result = ::Themis::Finals::Checker::Result::INTERNAL_ERROR
+    updated_adjunct = adjunct
     begin
-      result, updated_adjunct = push endpoint, flag, adjunct, metadata
+      result, updated_adjunct = push(endpoint, flag, adjunct, metadata)
     rescue Interrupt
       raise
     rescue Exception => e
@@ -45,14 +46,15 @@ class Push
   end
 
   def perform(job_data)
+    params = job_data['params']
     metadata = job_data['metadata']
     timestamp_created = ::DateTime.iso8601 metadata['timestamp']
     timestamp_delivered = ::DateTime.now
 
     status, updated_adjunct = internal_push(
-      job_data['endpoint'],
-      job_data['flag'],
-      ::Base64.decode64(job_data['adjunct']),
+      params['endpoint'],
+      params['flag'],
+      ::Base64.decode64(params['adjunct']),
       metadata
     )
 
@@ -60,28 +62,36 @@ class Push
 
     job_result = {
       status: status,
-      flag: job_data['flag'],
+      flag: params['flag'],
       adjunct: ::Base64.encode64(updated_adjunct)
     }
 
-    delivery_time = ::TimeDifference.between(timestamp_created, timestamp_delivered).in_seconds
-    processing_time = ::TimeDifference.between(timestamp_delivered, timestamp_processed).in_seconds
+    delivery_time = ::TimeDifference.between(
+      timestamp_created,
+      timestamp_delivered
+    ).in_seconds
+    processing_time = ::TimeDifference.between(
+      timestamp_delivered,
+      timestamp_processed
+    ).in_seconds
 
-    log_message = 'PUSH flag `%s` /%d to `%s`@`%s` (%s) - status %s, adjunct `%s` [delivery %.2fs, processing %.2fs]' % [
-      job_data['flag'],
-      metadata['round'],
-      metadata['service_name'],
-      metadata['team_name'],
-      job_data['endpoint'],
-      ::Themis::Finals::Checker::Result.key(status),
-      job_result[:adjunct],
-      delivery_time,
-      processing_time
-    ]
+    log_message = \
+      'PUSH flag `%s` /%d to `%s`@`%s` (%s) - status %s, adjunct `%s` '\
+      '[delivery %.2fs, processing %.2fs]' % [
+        params['flag'],
+        metadata['round'],
+        metadata['service_name'],
+        metadata['team_name'],
+        params['endpoint'],
+        ::Themis::Finals::Checker::Result.key(status),
+        job_result[:adjunct],
+        delivery_time,
+        processing_time
+      ]
 
     puts log_message
 
-    uri = URI("http://master.finals.themis-project.com/api/report_push")
+    uri = URI(job_data['report_url'])
 
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
@@ -106,7 +116,7 @@ class Pull
   def internal_pull(endpoint, flag, adjunct, metadata)
     result = ::Themis::Finals::Checker::Result::INTERNAL_ERROR
     begin
-      result = pull endpoint, flag, adjunct, metadata
+      result = pull(endpoint, flag, adjunct, metadata)
     rescue Interrupt
       raise
     rescue Exception => e
@@ -118,42 +128,51 @@ class Pull
   end
 
   def perform(job_data)
+    params = job_data['params']
     metadata = job_data['metadata']
     timestamp_created = ::DateTime.iso8601 metadata['timestamp']
     timestamp_delivered = ::DateTime.now
 
     status = internal_pull(
-      job_data['endpoint'],
-      job_data['flag'],
-      ::Base64.decode64(job_data['adjunct']),
-      job_data['metadata']
+      params['endpoint'],
+      params['flag'],
+      ::Base64.decode64(params['adjunct']),
+      metadata
     )
 
     timestamp_processed = ::DateTime.now
 
     job_result = {
-      request_id: job_data['request_id'],
+      request_id: params['request_id'],
       status: status
     }
 
-    delivery_time = ::TimeDifference.between(timestamp_created, timestamp_delivered).in_seconds
-    processing_time = ::TimeDifference.between(timestamp_delivered, timestamp_processed).in_seconds
+    delivery_time = ::TimeDifference.between(
+      timestamp_created,
+      timestamp_delivered
+    ).in_seconds
+    processing_time = ::TimeDifference.between(
+      timestamp_delivered,
+      timestamp_processed
+    ).in_seconds
 
-    log_message = 'PULL flag `%s` /%d from `%s`@`%s` (%s) with adjunct `%s` - status %s [delivery %.2fs, processing %.2fs]' % [
-      job_data['flag'],
-      metadata['round'],
-      metadata['service_name'],
-      metadata['team_name'],
-      job_data['endpoint'],
-      job_data['adjunct'],
-      ::Themis::Finals::Checker::Result.key(status),
-      delivery_time,
-      processing_time
-    ]
+    log_message = \
+      'PULL flag `%s` /%d from `%s`@`%s` (%s) with adjunct `%s` - status %s '\
+      '[delivery %.2fs, processing %.2fs]' % [
+        params['flag'],
+        metadata['round'],
+        metadata['service_name'],
+        metadata['team_name'],
+        params['endpoint'],
+        params['adjunct'],
+        ::Themis::Finals::Checker::Result.key(status),
+        delivery_time,
+        processing_time
+      ]
 
     puts log_message
 
-    uri = URI("http://master.finals.themis-project.com/api/report_pull")
+    uri = URI(job_data['report_url'])
 
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
