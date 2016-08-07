@@ -27,7 +27,7 @@ class Application < ::Sinatra::Base
 
     Push.perform_async payload
 
-    status 201
+    status 202
     body ''
   end
 
@@ -47,7 +47,7 @@ class Application < ::Sinatra::Base
 
     Pull.perform_async payload
 
-    status 201
+    status 202
     body ''
   end
 end
