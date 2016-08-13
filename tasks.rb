@@ -3,6 +3,7 @@ require 'themis/finals/checker/result'
 require 'time_difference'
 require 'net/http'
 require 'json'
+require './token'
 
 ::Sidekiq.configure_server do |config|
   config.redis = { url: 'redis://127.0.0.1:6379/10' }
@@ -96,6 +97,7 @@ class Push
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
     req.content_type = 'application/json'
+    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = ::Token.issue_checker_token
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
@@ -177,6 +179,7 @@ class Pull
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
     req.content_type = 'application/json'
+    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = ::Token.issue_checker_token
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)

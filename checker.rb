@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'json'
 require 'base64'
 require './tasks'
+require './token'
 
 class Application < ::Sinatra::Base
   configure :production, :development do
@@ -14,6 +15,11 @@ class Application < ::Sinatra::Base
     unless request.content_type == 'application/json'
       halt 400
     end
+
+    header_name = "HTTP_#{ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER'].upcase.gsub('-', '_')}"
+    auth_token = request.env[header_name]
+
+    halt 401 unless ::Token.verify_master_token(auth_token)
 
     payload = nil
 
@@ -35,6 +41,11 @@ class Application < ::Sinatra::Base
     unless request.content_type == 'application/json'
       halt 400
     end
+
+    header_name = "HTTP_#{ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER'].upcase.gsub('-', '_')}"
+    auth_token = request.env[header_name]
+
+    halt 401 unless ::Token.verify_master_token(auth_token)
 
     payload = nil
 
