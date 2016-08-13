@@ -6,7 +6,9 @@ require 'json'
 require './token'
 
 ::Sidekiq.configure_server do |config|
-  config.redis = { url: 'redis://127.0.0.1:6379/10' }
+  config.redis = {
+    url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}"
+  }
 
   config.on(:startup) do
     puts "Starting queue process, instance #{ENV['QUEUE_INSTANCE']}"
@@ -20,7 +22,9 @@ require './token'
 end
 
 ::Sidekiq.configure_client do |config|
-  config.redis = { url: 'redis://127.0.0.1:6379/10' }
+  config.redis = {
+    url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}"
+  }
 end
 
 class Push
