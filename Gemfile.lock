@@ -1,9 +1,3 @@
-PATH
-  remote: /var/themis/finals/lib/checker-result-rb
-  specs:
-    themis-finals-checker-result (2.0.0)
-      ruby-enum (~> 0.5.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -33,6 +27,8 @@ GEM
       rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
+    themis-finals-checker-result (1.0.0)
+      ruby-enum (~> 0.5.0)
     thin (1.7.0)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -50,9 +46,9 @@ PLATFORMS
 DEPENDENCIES
   sidekiq
   sinatra
-  themis-finals-checker-result!
+  themis-finals-checker-result (~> 1.0.0)
   thin
   time_difference
 
 BUNDLED WITH
-   1.11.2
+   1.12.5

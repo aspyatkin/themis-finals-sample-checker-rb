@@ -3,7 +3,15 @@ require 'themis/finals/checker/result'
 require 'time_difference'
 require 'net/http'
 require 'json'
-require './token'
+require './utils'
+
+config_module_name = ENV['THEMIS_FINALS_CHECKER_MODULE'] || ::File.join(
+  Dir.pwd,
+  'checker.rb'
+)
+require config_module_name
+
+logger = get_logger
 
 ::Sidekiq.configure_server do |config|
   config.redis = {
@@ -11,13 +19,13 @@ require './token'
   }
 
   config.on(:startup) do
-    puts "Starting queue process, instance #{ENV['QUEUE_INSTANCE']}"
+    logger.info "Starting queue process, instance #{ENV['QUEUE_INSTANCE']}"
   end
   config.on(:quiet) do
-    puts 'Got USR1, stopping further job processing...'
+    logger.info 'Got USR1, stopping further job processing...'
   end
   config.on(:shutdown) do
-    puts 'Got TERM, shutting down process...'
+    logger.info 'Got TERM, shutting down process...'
   end
 end
 
@@ -30,11 +38,6 @@ end
 class Push
   include ::Sidekiq::Worker
 
-  def push(endpoint, flag, adjunct, metadata)
-    sleep ::Random.new.rand 1..5
-    return ::Themis::Finals::Checker::Result::UP, adjunct
-  end
-
   def internal_push(endpoint, flag, adjunct, metadata)
     result = ::Themis::Finals::Checker::Result::INTERNAL_ERROR
     updated_adjunct = adjunct
@@ -43,8 +46,8 @@ class Push
     rescue Interrupt
       raise
     rescue Exception => e
-      puts e.message
-      e.backtrace.each { |line| puts line }
+      logger.error e.message
+      e.backtrace.each { |line| logger.error line }
     end
 
     return result, updated_adjunct
@@ -94,30 +97,25 @@ class Push
         processing_time
       ]
 
-    puts log_message
+    logger.error log_message
 
     uri = URI(job_data['report_url'])
 
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
     req.content_type = 'application/json'
-    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = ::Token.issue_checker_token
+    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = issue_checker_token
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
 
-    puts res.value
+    logger.error res.value
   end
 end
 
 class Pull
   include ::Sidekiq::Worker
-
-  def pull(endpoint, flag, adjunct, metadata)
-    sleep ::Random.new.rand 1..5
-    return ::Themis::Finals::Checker::Result::UP
-  end
 
   def internal_pull(endpoint, flag, adjunct, metadata)
     result = ::Themis::Finals::Checker::Result::INTERNAL_ERROR
@@ -126,8 +124,8 @@ class Pull
     rescue Interrupt
       raise
     rescue Exception => e
-      puts e.message
-      e.backtrace.each { |line| puts line }
+      logger.error e.message
+      e.backtrace.each { |line| logger.error line }
     end
 
     result
@@ -176,19 +174,19 @@ class Pull
         processing_time
       ]
 
-    puts log_message
+    logger.info log_message
 
     uri = URI(job_data['report_url'])
 
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
     req.content_type = 'application/json'
-    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = ::Token.issue_checker_token
+    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = issue_checker_token
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
 
-    puts res.value
+    logger.error res.value
   end
 end

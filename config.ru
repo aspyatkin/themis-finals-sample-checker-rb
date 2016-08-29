@@ -1,2 +1,2 @@
-require './checker'
+require './server'
 run Application
