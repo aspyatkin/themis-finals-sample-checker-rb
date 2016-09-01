@@ -62,7 +62,7 @@ class Push
     status, updated_adjunct = internal_push(
       params['endpoint'],
       params['flag'],
-      ::Base64.decode64(params['adjunct']),
+      ::Base64.urlsafe_decode64(params['adjunct']),
       metadata
     )
 
@@ -71,7 +71,7 @@ class Push
     job_result = {
       status: status,
       flag: params['flag'],
-      adjunct: ::Base64.encode64(updated_adjunct)
+      adjunct: ::Base64.urlsafe_encode64(updated_adjunct)
     }
 
     delivery_time = ::TimeDifference.between(
@@ -140,7 +140,7 @@ class Pull
     status = internal_pull(
       params['endpoint'],
       params['flag'],
-      ::Base64.decode64(params['adjunct']),
+      ::Base64.urlsafe_decode64(params['adjunct']),
       metadata
     )
 
