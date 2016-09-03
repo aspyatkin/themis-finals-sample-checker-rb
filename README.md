@@ -1,1 +1,1 @@
-# themis-sample-checker-rb
+# themis-finals-service1-checker
