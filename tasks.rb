@@ -13,6 +13,8 @@ require config_module_name
 
 logger = get_logger
 
+::Sidekiq.default_worker_options = { 'retry' => 0 }
+
 ::Sidekiq.configure_server do |config|
   config.redis = {
     url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}"
