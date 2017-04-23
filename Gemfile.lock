@@ -13,6 +13,7 @@ GEM
     faraday (0.9.2)
       multipart-post (>= 1.2, < 3)
     i18n (0.7.0)
+    jwt (1.5.6)
     minitest (5.9.0)
     multipart-post (2.0.0)
     rack (1.6.4)
@@ -49,6 +50,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  jwt
   sentry-raven
   sidekiq
   sinatra
@@ -57,4 +59,4 @@ DEPENDENCIES
   time_difference
 
 BUNDLED WITH
-   1.12.5
+   1.14.6
