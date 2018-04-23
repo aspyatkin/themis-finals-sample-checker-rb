@@ -16,12 +16,18 @@ require config_module_name
 
 $logger = get_logger
 
+config_redis = {
+  url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}"
+}
+
+unless ENV.fetch('REDIS_PASSWORD', nil).nil?
+  config_redis[:password] = ENV['REDIS_PASSWORD']
+end
+
 ::Sidekiq.default_worker_options = { 'retry' => 0 }
 
 ::Sidekiq.configure_server do |config|
-  config.redis = {
-    url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}"
-  }
+  config.redis = config_redis
 
   config.on(:startup) do
     $logger.info "Starting queue process, instance #{ENV['QUEUE_INSTANCE']}"
@@ -35,9 +41,7 @@ $logger = get_logger
 end
 
 ::Sidekiq.configure_client do |config|
-  config.redis = {
-    url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}"
-  }
+  config.redis = config_redis
 end
 
 $raven_enabled = !ENV['SENTRY_DSN'].nil?
