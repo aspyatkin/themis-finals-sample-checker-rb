@@ -184,7 +184,10 @@ class Push
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
     req.content_type = 'application/json'
-    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = issue_checker_token
+    req.basic_auth(
+      ENV['THEMIS_FINALS_AUTH_MASTER_USERNAME'],
+      ENV['THEMIS_FINALS_AUTH_MASTER_PASSWORD']
+    )
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
@@ -302,7 +305,10 @@ class Pull
     req = ::Net::HTTP::Post.new(uri)
     req.body = job_result.to_json
     req.content_type = 'application/json'
-    req[ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER']] = issue_checker_token
+    req.basic_auth(
+      ENV['THEMIS_FINALS_AUTH_MASTER_USERNAME'],
+      ENV['THEMIS_FINALS_AUTH_MASTER_PASSWORD']
+    )
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)

@@ -12,22 +12,6 @@ class Application < ::Sinatra::Base
 
   disable :run
 
-  class AuthTokenChecker
-    def initialize(app)
-      @app = app
-      @header_name = "HTTP_#{ENV['THEMIS_FINALS_AUTH_TOKEN_HEADER'].upcase.gsub('-', '_')}"
-    end
-
-    def call(env)
-      token = env[@header_name]
-      if verify_master_token token
-        @app.call env
-      else
-        Rack::Response.new([], 401, {}).finish
-      end
-    end
-  end
-
   class JSONBodyParser
     def initialize(app)
       @app = app
@@ -61,7 +45,6 @@ class Application < ::Sinatra::Base
     end
   end
 
-  use AuthTokenChecker
   use JSONBodyParser
 
   post '/push' do
