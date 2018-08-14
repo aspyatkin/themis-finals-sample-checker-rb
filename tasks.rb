@@ -9,7 +9,7 @@ require 'jwt'
 require 'openssl'
 
 config_module_name = ENV['THEMIS_FINALS_CHECKER_MODULE'] || ::File.join(
-  Dir.pwd,
+  ::Dir.pwd,
   'checker.rb'
 )
 require config_module_name
@@ -20,7 +20,7 @@ config_redis = {
   url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}"
 }
 
-unless ENV.fetch('REDIS_PASSWORD', nil).nil?
+unless ::ENV.fetch('REDIS_PASSWORD', nil).nil?
   config_redis[:password] = ENV['REDIS_PASSWORD']
 end
 
@@ -109,7 +109,7 @@ class Push
     status, updated_label, message = internal_push(
       params['endpoint'],
       params['capsule'],
-      ::Base64.urlsafe_decode64(params['label']),
+      params['label'],
       metadata
     )
 
@@ -118,7 +118,7 @@ class Push
     job_result = {
       status: status,
       flag: flag,
-      label: ::Base64.urlsafe_encode64(updated_label),
+      label: updated_label,
       message: message
     }
 
@@ -185,8 +185,8 @@ class Push
     req.body = job_result.to_json
     req.content_type = 'application/json'
     req.basic_auth(
-      ENV['THEMIS_FINALS_AUTH_MASTER_USERNAME'],
-      ENV['THEMIS_FINALS_AUTH_MASTER_PASSWORD']
+      ::ENV['THEMIS_FINALS_AUTH_MASTER_USERNAME'],
+      ::ENV['THEMIS_FINALS_AUTH_MASTER_PASSWORD']
     )
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
@@ -231,7 +231,7 @@ class Pull
     status, message = internal_pull(
       params['endpoint'],
       params['capsule'],
-      ::Base64.urlsafe_decode64(params['label']),
+      params['label'],
       metadata
     )
 
@@ -306,8 +306,8 @@ class Pull
     req.body = job_result.to_json
     req.content_type = 'application/json'
     req.basic_auth(
-      ENV['THEMIS_FINALS_AUTH_MASTER_USERNAME'],
-      ENV['THEMIS_FINALS_AUTH_MASTER_PASSWORD']
+      ::ENV['THEMIS_FINALS_AUTH_MASTER_USERNAME'],
+      ::ENV['THEMIS_FINALS_AUTH_MASTER_PASSWORD']
     )
 
     res = ::Net::HTTP.start(uri.hostname, uri.port) do |http|
